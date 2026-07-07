@@ -56,4 +56,4 @@ src/
 
 ## License
 
-This project has no license file yet — all rights reserved by the author unless a license is added.
+[MIT](LICENSE)
