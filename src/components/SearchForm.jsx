@@ -1,13 +1,14 @@
 // src/components/SearchForm.jsx
 import { Search } from "lucide-react";
-import { CUISINES, SORT_OPTIONS } from "../constants";
+import { CUISINES, SORT_OPTIONS, DIETS } from "../constants";
 
 export default function SearchForm({
   dishQuery, onDishQueryChange,
   ingredientsQuery, onIngredientsQueryChange,
   cuisine, onCuisineChange,
   sort, onSortChange,
-  onSubmit,
+  onSubmit, diet,
+  onDietChange
 }) {
   return (
     <form className="rs-form" onSubmit={onSubmit}>
@@ -37,6 +38,14 @@ export default function SearchForm({
           <option value="">Any cuisine</option>
           {CUISINES.map((c) => (
             <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+      </div>
+      <div className="rs-field">
+        <label htmlFor="diet">Diet</label>
+        <select id="diet" value={diet} onChange={(e) => onDietChange(e.target.value)}>
+          {DIETS.map((d) => (
+            <option key={d.value} value={d.value}>{d.label}</option>
           ))}
         </select>
       </div>

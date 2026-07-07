@@ -2,7 +2,7 @@
 const BASE_URL = "https://api.spoonacular.com";
 export const PAGE_SIZE = 12;
 
-export async function searchRecipes({ apiKey, dishQuery, ingredientsQuery, cuisine, sort, offset = 0 }) {
+export async function searchRecipes({ apiKey, dishQuery, ingredientsQuery, cuisine, diet, sort, offset = 0 }) {
   const params = new URLSearchParams({
     apiKey: apiKey.trim(),
     number: String(PAGE_SIZE),
@@ -13,7 +13,7 @@ export async function searchRecipes({ apiKey, dishQuery, ingredientsQuery, cuisi
   if (dishQuery.trim()) params.set("query", dishQuery.trim());
   if (ingredientsQuery.trim()) params.set("includeIngredients", ingredientsQuery.trim());
   if (cuisine) params.set("cuisine", cuisine);
-
+  if (diet) params.set("diet", diet);
   if (sort) {
     params.set("sort", sort);
   } else if (!dishQuery.trim() && !ingredientsQuery.trim() && !cuisine) {
@@ -26,6 +26,7 @@ export async function searchRecipes({ apiKey, dishQuery, ingredientsQuery, cuisi
     throw new Error(body?.message || `Search failed (status ${res.status}).`);
   }
   const data = await res.json();
+
   return {
     results: data.results || [],
     totalResults: data.totalResults || 0,
@@ -41,5 +42,6 @@ export async function fetchRecipeDetails({ apiKey, id }) {
   if (!res.ok) {
     throw new Error(`Could not load this recipe (status ${res.status}).`);
   }
+
   return res.json();
 }

@@ -12,3 +12,12 @@ export const SORT_OPTIONS = [
   { value: "healthiness", label: "Healthiest" },
   { value: "time", label: "Fastest to make" },
 ];
+
+export const DIETS = [
+  { value: "", label: "Any diet" },
+  { value: "vegetarian", label: "Vegetarian" },
+  { value: "vegan", label: "Vegan" },
+  { value: "gluten free", label: "Gluten free" },
+  { value: "ketogenic", label: "Ketogenic" },
+  { value: "paleo", label: "Paleo" },
+];

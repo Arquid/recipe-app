@@ -13,7 +13,7 @@ export function useRecipeSearch(apiKey) {
   const lastParamsRef = useRef(null);
   const offsetRef = useRef(0);
 
-  async function search({ dishQuery, ingredientsQuery, cuisine, sort }) {
+  async function search({ dishQuery, ingredientsQuery, cuisine, diet, sort }) {
     if (!apiKey.trim()) {
       setError("Add your Spoonacular API key above before searching.");
       return;
@@ -24,11 +24,11 @@ export function useRecipeSearch(apiKey) {
     setHasSearched(true);
     setRecipes([]);
     offsetRef.current = 0;
-    lastParamsRef.current = { dishQuery, ingredientsQuery, cuisine, sort };
+    lastParamsRef.current = { dishQuery, ingredientsQuery, cuisine, diet, sort };
 
     try {
       const { results, totalResults } = await searchRecipes({
-        apiKey, dishQuery, ingredientsQuery, cuisine, sort, offset: 0,
+        apiKey, dishQuery, ingredientsQuery, cuisine, diet, sort, offset: 0,
       });
       setRecipes(results);
       setTotalResults(totalResults);

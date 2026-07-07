@@ -22,6 +22,7 @@ export default function App() {
   const [cuisine, setCuisine] = useState("");
   const [sort, setSort] = useState("");
   const [showFavorites, setShowFavorites] = useState(false);
+  const [diet, setDiet] = useState("");
 
   const {
     recipes, loading, loadingMore, error, hasSearched,
@@ -33,7 +34,7 @@ export default function App() {
   function handleSubmit(e) {
     e.preventDefault();
     setShowFavorites(false);
-    search({ dishQuery, ingredientsQuery, cuisine, sort });
+    search({ dishQuery, ingredientsQuery, cuisine, sort, diet });
   }
 
   return (
@@ -67,6 +68,8 @@ export default function App() {
             sort={sort}
             onSortChange={setSort}
             onSubmit={handleSubmit}
+            diet={diet}
+            onDietChange={setDiet}
           />
         </section>
       )}
