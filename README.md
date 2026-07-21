@@ -26,7 +26,7 @@ npm install
 npm run dev
 ```
 
-Open the printed local URL, paste your Spoonacular API key into the field at the top of the page, and start searching. The key is only kept in memory for the current session — nothing is stored or sent anywhere except directly to Spoonacular's API.
+Open the printed local URL, paste your Spoonacular API key into the field at the top of the page, and start searching. By default the key is only kept in memory for the current session; check "Remember on this device" to persist it in the browser's `localStorage` so you don't have to paste it again next time. Either way, the key is never sent anywhere except directly to Spoonacular's API.
 
 ## Available scripts
 
@@ -36,6 +36,7 @@ Open the printed local URL, paste your Spoonacular API key into the field at the
 | `npm run build` | Build a production bundle into `dist/` |
 | `npm run preview` | Preview the production build locally |
 | `npm run lint` | Run ESLint over the project |
+| `npm run test` | Run the Vitest test suite |
 
 ## Project structure
 

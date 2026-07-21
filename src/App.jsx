@@ -14,9 +14,10 @@ import BackToTopButton from "./components/BackToTopButton";
 import { useRecipeSearch } from "./hooks/useRecipeSearch";
 import { useRecipeDetails } from "./hooks/useRecipeDetails";
 import { useFavorites } from "./hooks/useFavorites";
+import { useApiKey } from "./hooks/useApiKey";
 
 export default function App() {
-  const [apiKey, setApiKey] = useState("");
+  const { apiKey, setApiKey, remember, setRemember } = useApiKey();
   const [dishQuery, setDishQuery] = useState("");
   const [ingredientsQuery, setIngredientsQuery] = useState("");
   const [cuisine, setCuisine] = useState("");
@@ -57,7 +58,12 @@ export default function App() {
 
       {!showFavorites && (
         <section className="rs-panel">
-          <ApiKeyInput value={apiKey} onChange={setApiKey} />
+          <ApiKeyInput
+            value={apiKey}
+            onChange={setApiKey}
+            remember={remember}
+            onRememberChange={setRemember}
+          />
           <SearchForm
             dishQuery={dishQuery}
             onDishQueryChange={setDishQuery}
@@ -65,11 +71,11 @@ export default function App() {
             onIngredientsQueryChange={setIngredientsQuery}
             cuisine={cuisine}
             onCuisineChange={setCuisine}
+            diet={diet}
+            onDietChange={setDiet}
             sort={sort}
             onSortChange={setSort}
             onSubmit={handleSubmit}
-            diet={diet}
-            onDietChange={setDiet}
           />
         </section>
       )}

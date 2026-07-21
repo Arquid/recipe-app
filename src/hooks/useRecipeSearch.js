@@ -1,4 +1,3 @@
-// src/hooks/useRecipeSearch.js
 import { useState, useRef } from "react";
 import { searchRecipes, PAGE_SIZE } from "../api/spoonacular";
 
@@ -12,12 +11,17 @@ export function useRecipeSearch(apiKey) {
 
   const lastParamsRef = useRef(null);
   const offsetRef = useRef(0);
+  const abortRef = useRef(null);
 
   async function search({ dishQuery, ingredientsQuery, cuisine, diet, sort }) {
     if (!apiKey.trim()) {
       setError("Add your Spoonacular API key above before searching.");
       return;
     }
+
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
 
     setLoading(true);
     setError(null);
@@ -29,18 +33,24 @@ export function useRecipeSearch(apiKey) {
     try {
       const { results, totalResults } = await searchRecipes({
         apiKey, dishQuery, ingredientsQuery, cuisine, diet, sort, offset: 0,
+        signal: controller.signal,
       });
       setRecipes(results);
       setTotalResults(totalResults);
     } catch (err) {
+      if (err.name === "AbortError") return;
       setError(err.message || "Something went wrong while searching.");
     } finally {
-      setLoading(false);
+      if (abortRef.current === controller) setLoading(false);
     }
   }
 
   async function loadMore() {
     if (!lastParamsRef.current || loadingMore) return;
+
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
 
     setLoadingMore(true);
     setError(null);
@@ -51,14 +61,16 @@ export function useRecipeSearch(apiKey) {
         apiKey,
         ...lastParamsRef.current,
         offset: nextOffset,
+        signal: controller.signal,
       });
       setRecipes((prev) => [...prev, ...results]);
       setTotalResults(totalResults);
       offsetRef.current = nextOffset;
     } catch (err) {
+      if (err.name === "AbortError") return;
       setError(err.message || "Could not load more recipes.");
     } finally {
-      setLoadingMore(false);
+      if (abortRef.current === controller) setLoadingMore(false);
     }
   }
 

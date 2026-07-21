@@ -2,7 +2,7 @@
 const BASE_URL = "https://api.spoonacular.com";
 export const PAGE_SIZE = 12;
 
-export async function searchRecipes({ apiKey, dishQuery, ingredientsQuery, cuisine, diet, sort, offset = 0 }) {
+export async function searchRecipes({ apiKey, dishQuery, ingredientsQuery, cuisine, diet, sort, offset = 0, signal }) {
   const params = new URLSearchParams({
     apiKey: apiKey.trim(),
     number: String(PAGE_SIZE),
@@ -20,7 +20,7 @@ export async function searchRecipes({ apiKey, dishQuery, ingredientsQuery, cuisi
     params.set("sort", "popularity");
   }
 
-  const res = await fetch(`${BASE_URL}/recipes/complexSearch?${params}`);
+  const res = await fetch(`${BASE_URL}/recipes/complexSearch?${params}`, { signal });
   if (!res.ok) {
     const body = await res.json().catch(() => null);
     throw new Error(body?.message || `Search failed (status ${res.status}).`);

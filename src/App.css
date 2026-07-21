@@ -97,7 +97,7 @@
   padding-bottom: 14px;
   border-bottom: 1px dashed var(--line);
 }
-.rs-key-row input {
+.rs-key-row > input {
   flex: 1;
   min-width: 0;
   border: 1px solid var(--line);
@@ -109,6 +109,17 @@
   color: var(--ink);
 }
 .rs-key-row a { color: var(--paprika); text-decoration: underline; }
+.rs-remember {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.rs-remember input[type="checkbox"] {
+  accent-color: var(--paprika);
+  cursor: pointer;
+}
 
 .rs-form {
   display: grid;

@@ -6,9 +6,9 @@ export default function SearchForm({
   dishQuery, onDishQueryChange,
   ingredientsQuery, onIngredientsQueryChange,
   cuisine, onCuisineChange,
+  diet, onDietChange,
   sort, onSortChange,
-  onSubmit, diet,
-  onDietChange
+  onSubmit,
 }) {
   return (
     <form className="rs-form" onSubmit={onSubmit}>

@@ -23,13 +23,13 @@ export function useFavorites() {
     [favorites]
   );
 
-  function toggleFavorite(recipe) {
+  const toggleFavorite = useCallback((recipe) => {
     setFavorites((prev) =>
       prev.some((f) => f.id === recipe.id)
         ? prev.filter((f) => f.id !== recipe.id)
         : [...prev, { id: recipe.id, title: recipe.title, image: recipe.image, cuisines: recipe.cuisines }]
     );
-  }
+  }, []);
 
   return { favorites, isFavorite, toggleFavorite };
 }
