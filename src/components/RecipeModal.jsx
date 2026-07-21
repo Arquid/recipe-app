@@ -1,11 +1,36 @@
-import { X, Clock, Users } from "lucide-react";
+import { useState } from "react";
+import { X, Clock, Users, Printer, Share2 } from "lucide-react";
 import { stripHtml } from "../utils/text";
 
 export default function RecipeModal({ detail, loading, error, onClose }) {
+  const [shareStatus, setShareStatus] = useState("idle");
+
   const steps =
     detail?.analyzedInstructions?.[0]?.steps?.length
       ? detail.analyzedInstructions[0].steps
       : null;
+
+  async function handleShare() {
+    const url = detail?.sourceUrl || detail?.spoonacularSourceUrl;
+    if (!url) return;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: detail.title, url });
+      } catch {
+        // user closed the share sheet — nothing to do
+      }
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareStatus("copied");
+      setTimeout(() => setShareStatus("idle"), 2000);
+    } catch {
+      setShareStatus("idle");
+    }
+  }
 
   return (
     <div className="rs-overlay" role="dialog" aria-modal="true" onClick={onClose}>
@@ -32,6 +57,17 @@ export default function RecipeModal({ detail, loading, error, onClose }) {
                 )}
                 {detail.servings && (
                   <span><Users size={14} /> {detail.servings} servings</span>
+                )}
+              </div>
+
+              <div className="rs-modal-actions">
+                <button type="button" className="rs-modal-action" onClick={() => window.print()}>
+                  <Printer size={14} /> Print
+                </button>
+                {(detail.sourceUrl || detail.spoonacularSourceUrl) && (
+                  <button type="button" className="rs-modal-action" onClick={handleShare}>
+                    <Share2 size={14} /> {shareStatus === "copied" ? "Link copied!" : "Share"}
+                  </button>
                 )}
               </div>
 

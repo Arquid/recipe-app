@@ -9,6 +9,7 @@ A small React + Vite app for searching recipes with the [Spoonacular](https://sp
 - Infinite "load more" pagination
 - Save recipes as favorites (persisted in the browser via `localStorage`) and browse them in a dedicated favorites view
 - Recipe detail modal with ingredients and instructions
+- Print a recipe or share/copy its link straight from the modal
 - Back-to-top button for long result lists
 - No backend required — bring your own free Spoonacular API key
 
@@ -44,7 +45,7 @@ Open the printed local URL, paste your Spoonacular API key into the field at the
 src/
 ├── api/spoonacular.js        # Spoonacular API calls
 ├── components/                # UI components
-├── hooks/                     # useRecipeSearch, useRecipeDetails, useFavorites
+├── hooks/                     # useRecipeSearch, useRecipeDetails, useFavorites, useApiKey
 ├── utils/text.js              # HTML stripping / truncation helpers
 ├── constants.js                # Cuisine, diet, and sort option lists
 └── App.jsx                    # App shell / state wiring
@@ -55,6 +56,7 @@ src/
 - [React 19](https://react.dev/)
 - [Vite](https://vite.dev/)
 - [lucide-react](https://lucide.dev/) for icons
+- [Vitest](https://vitest.dev/) + [Testing Library](https://testing-library.com/) for tests
 
 ## License
 
