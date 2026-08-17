@@ -33,12 +33,12 @@ export async function searchRecipes({ apiKey, dishQuery, ingredientsQuery, cuisi
   };
 }
 
-export async function fetchRecipeDetails({ apiKey, id }) {
+export async function fetchRecipeDetails({ apiKey, id, signal }) {
   const params = new URLSearchParams({
     apiKey: apiKey.trim(),
     includeNutrition: "false",
   });
-  const res = await fetch(`${BASE_URL}/recipes/${id}/information?${params}`);
+  const res = await fetch(`${BASE_URL}/recipes/${id}/information?${params}`, { signal });
   if (!res.ok) {
     throw new Error(`Could not load this recipe (status ${res.status}).`);
   }

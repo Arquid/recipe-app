@@ -1,5 +1,7 @@
 # Recipe Finder
 
+[![CI](https://github.com/Arquid/recipe-app/actions/workflows/ci.yml/badge.svg)](https://github.com/Arquid/recipe-app/actions/workflows/ci.yml)
+
 A small React + Vite app for searching recipes with the [Spoonacular](https://spoonacular.com/food-api) API. Search by dish name, ingredients you already have, a cuisine, or a diet — then browse results, load more, and open any recipe for full ingredients and step-by-step instructions.
 
 ## Features
@@ -10,6 +12,7 @@ A small React + Vite app for searching recipes with the [Spoonacular](https://sp
 - Save recipes as favorites (persisted in the browser via `localStorage`) and browse them in a dedicated favorites view
 - Recipe detail modal with ingredients and instructions
 - Print a recipe or share/copy its link straight from the modal
+- Keyboard-friendly recipe modal: close with Esc, focus stays trapped inside while it's open
 - Back-to-top button for long result lists
 - No backend required — bring your own free Spoonacular API key
 
@@ -50,6 +53,10 @@ src/
 ├── constants.js                # Cuisine, diet, and sort option lists
 └── App.jsx                    # App shell / state wiring
 ```
+
+## CI
+
+Every push and pull request to `main` runs lint, tests, and a production build via [GitHub Actions](.github/workflows/ci.yml).
 
 ## Tech stack
 

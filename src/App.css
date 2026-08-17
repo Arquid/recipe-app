@@ -496,6 +496,11 @@
   transition: border-color 0.15s ease;
 }
 .rs-modal-action:hover { border-color: var(--sage); }
+.rs-modal-action-error {
+  border-color: #6B3524;
+  color: #F1B49B;
+}
+.rs-modal-action-error:hover { border-color: #6B3524; }
 
 @media print {
   .rs-app > *:not(.rs-overlay) {

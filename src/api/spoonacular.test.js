@@ -105,4 +105,13 @@ describe("fetchRecipeDetails", () => {
       "Could not load this recipe (status 404)."
     );
   });
+
+  it("forwards the abort signal to fetch", async () => {
+    global.fetch.mockResolvedValue({ ok: true, json: async () => ({ id: 5, title: "Soup" }) });
+    const controller = new AbortController();
+
+    await fetchRecipeDetails({ apiKey: "k", id: 5, signal: controller.signal });
+
+    expect(global.fetch.mock.calls[0][1]).toEqual({ signal: controller.signal });
+  });
 });

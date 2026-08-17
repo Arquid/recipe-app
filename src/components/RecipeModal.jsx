@@ -1,14 +1,50 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X, Clock, Users, Printer, Share2 } from "lucide-react";
 import { stripHtml } from "../utils/text";
 
+const FOCUSABLE_SELECTOR = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
 export default function RecipeModal({ detail, loading, error, onClose }) {
   const [shareStatus, setShareStatus] = useState("idle");
+  const modalRef = useRef(null);
 
   const steps =
     detail?.analyzedInstructions?.[0]?.steps?.length
       ? detail.analyzedInstructions[0].steps
       : null;
+
+  useEffect(() => {
+    const previouslyFocused = document.activeElement;
+    modalRef.current?.focus();
+
+    function handleKeyDown(e) {
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab") return;
+
+      const focusables = modalRef.current?.querySelectorAll(FOCUSABLE_SELECTOR);
+      if (!focusables || focusables.length === 0) return;
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      previouslyFocused?.focus?.();
+    };
+  }, [onClose]);
 
   async function handleShare() {
     const url = detail?.sourceUrl || detail?.spoonacularSourceUrl;
@@ -26,15 +62,19 @@ export default function RecipeModal({ detail, loading, error, onClose }) {
     try {
       await navigator.clipboard.writeText(url);
       setShareStatus("copied");
-      setTimeout(() => setShareStatus("idle"), 2000);
     } catch {
-      setShareStatus("idle");
+      setShareStatus("error");
+    } finally {
+      setTimeout(() => setShareStatus("idle"), 2000);
     }
   }
 
+  const shareLabel =
+    shareStatus === "copied" ? "Link copied!" : shareStatus === "error" ? "Couldn't copy" : "Share";
+
   return (
     <div className="rs-overlay" role="dialog" aria-modal="true" onClick={onClose}>
-      <div className="rs-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="rs-modal" ref={modalRef} tabIndex={-1} onClick={(e) => e.stopPropagation()}>
         <button className="rs-modal-close" onClick={onClose} aria-label="Close recipe details">
           <X size={18} />
         </button>
@@ -65,8 +105,12 @@ export default function RecipeModal({ detail, loading, error, onClose }) {
                   <Printer size={14} /> Print
                 </button>
                 {(detail.sourceUrl || detail.spoonacularSourceUrl) && (
-                  <button type="button" className="rs-modal-action" onClick={handleShare}>
-                    <Share2 size={14} /> {shareStatus === "copied" ? "Link copied!" : "Share"}
+                  <button
+                    type="button"
+                    className={`rs-modal-action${shareStatus === "error" ? " rs-modal-action-error" : ""}`}
+                    onClick={handleShare}
+                  >
+                    <Share2 size={14} /> {shareLabel}
                   </button>
                 )}
               </div>
