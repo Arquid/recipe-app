@@ -12,7 +12,8 @@ A small React + Vite app for searching recipes with the [Spoonacular](https://sp
 - Save recipes as favorites (persisted in the browser via `localStorage`) and browse them in a dedicated favorites view
 - Recipe detail modal with ingredients and instructions
 - Print a recipe or share/copy its link straight from the modal
-- Keyboard-friendly recipe modal: close with Esc, focus stays trapped inside while it's open
+- Keyboard-friendly recipe modal: close with Esc, focus stays trapped inside while it's open, and focus returns to where you were once it closes
+- Recipe modal is code-split (`React.lazy`) so it's only downloaded when a recipe is opened
 - Back-to-top button for long result lists
 - No backend required — bring your own free Spoonacular API key
 
@@ -20,7 +21,7 @@ A small React + Vite app for searching recipes with the [Spoonacular](https://sp
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) 18 or newer
+- [Node.js](https://nodejs.org/) 20 or newer (see [`.nvmrc`](.nvmrc))
 - A free API key from [spoonacular.com/food-api](https://spoonacular.com/food-api)
 
 ### Installation
@@ -56,7 +57,7 @@ src/
 
 ## CI
 
-Every push and pull request to `main` runs lint, tests, and a production build via [GitHub Actions](.github/workflows/ci.yml).
+Every push and pull request to `main` runs lint, tests, a production build, and a dependency audit (`npm audit --audit-level=high`) via [GitHub Actions](.github/workflows/ci.yml). [Dependabot](.github/dependabot.yml) opens weekly PRs for outdated npm and GitHub Actions dependencies.
 
 ## Tech stack
 

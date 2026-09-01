@@ -1,5 +1,5 @@
 // src/App.jsx
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import "./App.css";
 import { Soup, Heart } from "lucide-react";
 
@@ -7,9 +7,10 @@ import ApiKeyInput from "./components/ApiKeyInput";
 import SearchForm from "./components/SearchForm";
 import { LoadingIndicator, ErrorMessage, EmptyState } from "./components/StatusMessage";
 import RecipeGrid from "./components/RecipeGrid";
-import RecipeModal from "./components/RecipeModal";
 import LoadMoreButton from "./components/LoadMoreButton";
 import BackToTopButton from "./components/BackToTopButton";
+
+const RecipeModal = lazy(() => import("./components/RecipeModal"));
 
 import { useRecipeSearch } from "./hooks/useRecipeSearch";
 import { useRecipeDetails } from "./hooks/useRecipeDetails";
@@ -115,12 +116,24 @@ export default function App() {
       )}
 
       {details.selectedId && (
-        <RecipeModal
-          detail={details.detail}
-          loading={details.loading}
-          error={details.error}
-          onClose={details.close}
-        />
+        <Suspense
+          fallback={
+            <div className="rs-overlay" role="dialog" aria-modal="true">
+              <div className="rs-modal">
+                <div className="rs-status" style={{ padding: "60px 20px" }}>
+                  <div className="rs-spinner" />Loading…
+                </div>
+              </div>
+            </div>
+          }
+        >
+          <RecipeModal
+            detail={details.detail}
+            loading={details.loading}
+            error={details.error}
+            onClose={details.close}
+          />
+        </Suspense>
       )}
 
       <BackToTopButton />

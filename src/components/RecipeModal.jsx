@@ -42,7 +42,9 @@ export default function RecipeModal({ detail, loading, error, onClose }) {
     document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-      previouslyFocused?.focus?.();
+      if (previouslyFocused && document.contains(previouslyFocused)) {
+        previouslyFocused.focus();
+      }
     };
   }, [onClose]);
 
