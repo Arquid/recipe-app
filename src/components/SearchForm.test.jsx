@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import { axe } from "vitest-axe";
 import SearchForm from "./SearchForm";
 
 function renderForm(props = {}) {
@@ -16,8 +17,8 @@ function renderForm(props = {}) {
     onSortChange: vi.fn(),
     onSubmit: vi.fn((e) => e.preventDefault()),
   };
-  render(<SearchForm {...handlers} {...props} />);
-  return handlers;
+  const { container } = render(<SearchForm {...handlers} {...props} />);
+  return { ...handlers, container };
 }
 
 describe("SearchForm", () => {
@@ -51,5 +52,10 @@ describe("SearchForm", () => {
     fireEvent.click(screen.getByRole("button", { name: /search/i }));
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it("has no accessibility violations", async () => {
+    const { container } = renderForm();
+    expect(await axe(container)).toHaveNoViolations();
   });
 });
