@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { axe } from "vitest-axe";
 import RecipeModal from "./RecipeModal";
 
 const detail = {
@@ -86,5 +87,57 @@ describe("RecipeModal", () => {
     closeButton.focus();
     fireEvent.keyDown(document, { key: "Tab", shiftKey: true });
     expect(document.activeElement).toBe(shareButton);
+  });
+
+  it("has no accessibility violations", async () => {
+    const { container } = render(<RecipeModal detail={detail} loading={false} error={null} onClose={vi.fn()} />);
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+});
+
+describe("RecipeModal share behavior", () => {
+  const originalClipboard = navigator.clipboard;
+
+  afterEach(() => {
+    delete navigator.share;
+    Object.defineProperty(navigator, "clipboard", { value: originalClipboard, configurable: true });
+  });
+
+  it("shows a confirmation once the link is copied to the clipboard", async () => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: vi.fn().mockResolvedValue(undefined) },
+      configurable: true,
+    });
+
+    render(<RecipeModal detail={detail} loading={false} error={null} onClose={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: /share/i }));
+
+    expect(await screen.findByRole("button", { name: /link copied/i })).toBeTruthy();
+  });
+
+  it("shows an error state when copying to the clipboard fails", async () => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: vi.fn().mockRejectedValue(new Error("denied")) },
+      configurable: true,
+    });
+
+    render(<RecipeModal detail={detail} loading={false} error={null} onClose={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: /share/i }));
+
+    const errorButton = await screen.findByRole("button", { name: /couldn't copy/i });
+    expect(errorButton.className).toContain("rs-modal-action-error");
+  });
+
+  it("uses the native share sheet when the Web Share API is available", async () => {
+    const share = vi.fn().mockResolvedValue(undefined);
+    navigator.share = share;
+
+    render(<RecipeModal detail={detail} loading={false} error={null} onClose={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: /share/i }));
+
+    await waitFor(() =>
+      expect(share).toHaveBeenCalledWith({ title: detail.title, url: detail.sourceUrl })
+    );
   });
 });

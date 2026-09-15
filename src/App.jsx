@@ -9,6 +9,7 @@ import { LoadingIndicator, ErrorMessage, EmptyState } from "./components/StatusM
 import RecipeGrid from "./components/RecipeGrid";
 import LoadMoreButton from "./components/LoadMoreButton";
 import BackToTopButton from "./components/BackToTopButton";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const RecipeModal = lazy(() => import("./components/RecipeModal"));
 
@@ -116,24 +117,36 @@ export default function App() {
       )}
 
       {details.selectedId && (
-        <Suspense
+        <ErrorBoundary
           fallback={
-            <div className="rs-overlay" role="dialog" aria-modal="true">
-              <div className="rs-modal">
-                <div className="rs-status" style={{ padding: "60px 20px" }}>
-                  <div className="rs-spinner" />Loading…
+            <div className="rs-overlay" role="dialog" aria-modal="true" aria-label="Recipe details" onClick={details.close}>
+              <div className="rs-modal" onClick={(e) => e.stopPropagation()}>
+                <div className="rs-error" style={{ margin: "20px" }}>
+                  Couldn't load the recipe view. Try closing and opening it again.
                 </div>
               </div>
             </div>
           }
         >
-          <RecipeModal
-            detail={details.detail}
-            loading={details.loading}
-            error={details.error}
-            onClose={details.close}
-          />
-        </Suspense>
+          <Suspense
+            fallback={
+              <div className="rs-overlay" role="dialog" aria-modal="true" aria-label="Recipe details">
+                <div className="rs-modal">
+                  <div className="rs-status" style={{ padding: "60px 20px" }}>
+                    <div className="rs-spinner" />Loading…
+                  </div>
+                </div>
+              </div>
+            }
+          >
+            <RecipeModal
+              detail={details.detail}
+              loading={details.loading}
+              error={details.error}
+              onClose={details.close}
+            />
+          </Suspense>
+        </ErrorBoundary>
       )}
 
       <BackToTopButton />

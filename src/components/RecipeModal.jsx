@@ -75,7 +75,14 @@ export default function RecipeModal({ detail, loading, error, onClose }) {
     shareStatus === "copied" ? "Link copied!" : shareStatus === "error" ? "Couldn't copy" : "Share";
 
   return (
-    <div className="rs-overlay" role="dialog" aria-modal="true" onClick={onClose}>
+    <div
+      className="rs-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label={!detail ? "Recipe details" : undefined}
+      aria-labelledby={detail ? "recipe-modal-title" : undefined}
+      onClick={onClose}
+    >
       <div className="rs-modal" ref={modalRef} tabIndex={-1} onClick={(e) => e.stopPropagation()}>
         <button className="rs-modal-close" onClick={onClose} aria-label="Close recipe details">
           <X size={18} />
@@ -92,7 +99,7 @@ export default function RecipeModal({ detail, loading, error, onClose }) {
           <>
             <img src={detail.image || "https://placehold.co/640x300?text=Recipe"} alt={detail.title} />
             <div className="rs-modal-body">
-              <h2 className="rs-modal-title">{detail.title}</h2>
+              <h2 className="rs-modal-title" id="recipe-modal-title">{detail.title}</h2>
               <div className="rs-meta-row">
                 {detail.readyInMinutes && (
                   <span><Clock size={14} /> {detail.readyInMinutes} min</span>

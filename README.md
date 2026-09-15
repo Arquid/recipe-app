@@ -14,6 +14,7 @@ A small React + Vite app for searching recipes with the [Spoonacular](https://sp
 - Print a recipe or share/copy its link straight from the modal
 - Keyboard-friendly recipe modal: close with Esc, focus stays trapped inside while it's open, and focus returns to where you were once it closes
 - Recipe modal is code-split (`React.lazy`) so it's only downloaded when a recipe is opened
+- Wrapped in error boundaries so an unexpected crash (e.g. a failed chunk download) shows a recoverable message instead of a blank page
 - Back-to-top button for long result lists
 - No backend required — bring your own free Spoonacular API key
 
@@ -42,22 +43,34 @@ Open the printed local URL, paste your Spoonacular API key into the field at the
 | `npm run preview` | Preview the production build locally |
 | `npm run lint` | Run ESLint over the project |
 | `npm run test` | Run the Vitest test suite |
+| `npm run coverage` | Run the test suite with a code coverage report |
 
 ## Project structure
 
 ```
 src/
 ├── api/spoonacular.js        # Spoonacular API calls
-├── components/                # UI components
+├── components/                # UI components (incl. ErrorBoundary)
 ├── hooks/                     # useRecipeSearch, useRecipeDetails, useFavorites, useApiKey
 ├── utils/text.js              # HTML stripping / truncation helpers
+├── test/setup.js               # Vitest setup (accessibility matcher)
 ├── constants.js                # Cuisine, diet, and sort option lists
 └── App.jsx                    # App shell / state wiring
 ```
 
+Every component and hook has a co-located `*.test.jsx`/`*.test.js` file.
+
 ## CI
 
-Every push and pull request to `main` runs lint, tests, a production build, and a dependency audit (`npm audit --audit-level=high`) via [GitHub Actions](.github/workflows/ci.yml). [Dependabot](.github/dependabot.yml) opens weekly PRs for outdated npm and GitHub Actions dependencies.
+Every push and pull request to `main` runs lint, tests with coverage, a production build, and a dependency audit (`npm audit --audit-level=high`) via [GitHub Actions](.github/workflows/ci.yml). [Dependabot](.github/dependabot.yml) opens weekly PRs for outdated npm and GitHub Actions dependencies.
+
+## Testing
+
+- Unit tests for every hook and API call, including the search/detail request-cancellation logic
+- Component tests for all UI components (rendering, interaction, keyboard behavior)
+- An integration test that exercises the full app: search → open a recipe → save a favorite → close
+- Accessibility checks (via [vitest-axe](https://github.com/chance/vitest-axe)) on the key interactive components
+- A React error boundary is tested directly, and one wraps the app so a rendering crash degrades gracefully instead of a blank page
 
 ## Tech stack
 
@@ -65,6 +78,7 @@ Every push and pull request to `main` runs lint, tests, a production build, and 
 - [Vite](https://vite.dev/)
 - [lucide-react](https://lucide.dev/) for icons
 - [Vitest](https://vitest.dev/) + [Testing Library](https://testing-library.com/) for tests
+- [vitest-axe](https://github.com/chance/vitest-axe) for automated accessibility checks
 
 ## License
 
