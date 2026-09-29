@@ -44,6 +44,7 @@ Open the printed local URL, paste your Spoonacular API key into the field at the
 | `npm run lint` | Run ESLint over the project |
 | `npm run test` | Run the Vitest test suite |
 | `npm run coverage` | Run the test suite with a code coverage report |
+| `npm run e2e` | Run the Playwright end-to-end smoke tests against a production build |
 
 ## Project structure
 
@@ -62,14 +63,17 @@ Every component and hook has a co-located `*.test.jsx`/`*.test.js` file.
 
 ## CI
 
-Every push and pull request to `main` runs lint, tests with coverage, a production build, and a dependency audit (`npm audit --audit-level=high`) via [GitHub Actions](.github/workflows/ci.yml). [Dependabot](.github/dependabot.yml) opens weekly PRs for outdated npm and GitHub Actions dependencies.
+Every push and pull request to `main` runs lint, tests with coverage (enforced by minimum thresholds, see `vite.config.js`), a production build, Playwright end-to-end smoke tests against that build, and a dependency audit (`npm audit --audit-level=high`) via [GitHub Actions](.github/workflows/ci.yml). [Dependabot](.github/dependabot.yml) opens weekly PRs for outdated npm and GitHub Actions dependencies.
+
+**After merging a Dependabot PR that needed conflict resolution** (e.g. two version bumps landing close together), diff the merged file against what the PR claimed to change before trusting it — a conflict can be resolved in the wrong direction and silently keep the old version even though GitHub shows the PR as merged. This happened once with an `actions/checkout` bump; see the commit history around September 2026 for the fix.
 
 ## Testing
 
 - Unit tests for every hook and API call, including the search/detail request-cancellation logic
 - Component tests for all UI components (rendering, interaction, keyboard behavior)
-- An integration test that exercises the full app: search → open a recipe → save a favorite → close
-- Accessibility checks (via [vitest-axe](https://github.com/chance/vitest-axe)) on the key interactive components
+- An integration test (Vitest + Testing Library) that exercises the full app with mocked API calls: search → open a recipe → save a favorite → close
+- End-to-end smoke tests (Playwright, `e2e/`) that run against a real production build and preview server, catching issues the mocked tests structurally can't (routing, asset paths, the code-split chunk actually loading)
+- Accessibility checks (via [vitest-axe](https://github.com/chance/vitest-axe), with the `color-contrast` rule disabled since jsdom can't render real styles) on the key interactive components
 - A React error boundary is tested directly, and one wraps the app so a rendering crash degrades gracefully instead of a blank page
 
 ## Tech stack
@@ -77,8 +81,9 @@ Every push and pull request to `main` runs lint, tests with coverage, a producti
 - [React 19](https://react.dev/)
 - [Vite](https://vite.dev/)
 - [lucide-react](https://lucide.dev/) for icons
-- [Vitest](https://vitest.dev/) + [Testing Library](https://testing-library.com/) for tests
+- [Vitest](https://vitest.dev/) + [Testing Library](https://testing-library.com/) for unit/component/integration tests
 - [vitest-axe](https://github.com/chance/vitest-axe) for automated accessibility checks
+- [Playwright](https://playwright.dev/) for end-to-end smoke tests
 
 ## License
 
