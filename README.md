@@ -63,7 +63,7 @@ Every component and hook has a co-located `*.test.jsx`/`*.test.js` file.
 
 ## CI
 
-Every push and pull request to `main` runs lint, tests with coverage (enforced by minimum thresholds, see `vite.config.js`), a production build, Playwright end-to-end smoke tests against that build, and a dependency audit (`npm audit --audit-level=high`) via [GitHub Actions](.github/workflows/ci.yml). [Dependabot](.github/dependabot.yml) opens weekly PRs for outdated npm and GitHub Actions dependencies.
+Every push and pull request to `main` runs lint, tests with coverage (enforced by minimum thresholds, see `vite.config.js`), a production build, Playwright end-to-end smoke tests against that build, and an audit of production dependencies (`npm audit --omit=dev --audit-level=high`) via [GitHub Actions](.github/workflows/ci.yml). Advisories in dev tooling (Vite, Vitest, ESLint and their dependencies) don't ship to users, so they don't block PRs; a [weekly workflow](.github/workflows/audit-dev.yml) audits the full dependency tree instead and surfaces them. [Dependabot](.github/dependabot.yml) opens weekly PRs for outdated npm and GitHub Actions dependencies.
 
 **After merging a Dependabot PR that needed conflict resolution** (e.g. two version bumps landing close together), diff the merged file against what the PR claimed to change before trusting it — a conflict can be resolved in the wrong direction and silently keep the old version even though GitHub shows the PR as merged. This happened once with an `actions/checkout` bump; see the commit history around September 2026 for the fix.
 

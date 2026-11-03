@@ -29,4 +29,4 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
-      - run: npm audit --audit-level=high
+      - run: npm audit --omit=dev --audit-level=high
