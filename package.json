@@ -16,9 +16,9 @@
     "e2e": "playwright test"
   },
   "dependencies": {
-    "lucide-react": "^1.48.0",
-    "react": "^19.2.7",
-    "react-dom": "^19.3.0"
+    "lucide-react": "^1.65.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
