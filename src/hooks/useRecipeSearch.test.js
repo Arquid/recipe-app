@@ -113,4 +113,22 @@ describe("useRecipeSearch", () => {
     expect(result.current.error).toBe(null);
     expect(result.current.recipes).toEqual([{ id: 2 }]);
   });
+
+  it("shows an error and keeps existing results when loading more fails", async () => {
+    searchRecipes.mockResolvedValueOnce({ results: [{ id: 1 }], totalResults: 20 });
+    const { result } = renderHook(() => useRecipeSearch("key"));
+
+    await act(async () => {
+      await result.current.search(baseQuery);
+    });
+
+    searchRecipes.mockRejectedValueOnce(new Error("Quota exceeded"));
+
+    await act(async () => {
+      await result.current.loadMore();
+    });
+
+    expect(result.current.error).toBe("Quota exceeded");
+    expect(result.current.recipes).toEqual([{ id: 1 }]);
+  });
 });

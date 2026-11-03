@@ -63,7 +63,7 @@ Every component and hook has a co-located `*.test.jsx`/`*.test.js` file.
 
 ## CI
 
-Every push and pull request to `main` runs lint, tests with coverage (enforced by minimum thresholds, see `vite.config.js`), a production build, Playwright end-to-end smoke tests against that build, and an audit of production dependencies (`npm audit --omit=dev --audit-level=high`) via [GitHub Actions](.github/workflows/ci.yml). Advisories in dev tooling (Vite, Vitest, ESLint and their dependencies) don't ship to users, so they don't block PRs; a [weekly workflow](.github/workflows/audit-dev.yml) audits the full dependency tree instead and surfaces them. [Dependabot](.github/dependabot.yml) opens weekly PRs for outdated npm and GitHub Actions dependencies.
+Every push and pull request to `main` runs lint, tests with coverage (enforced by minimum thresholds, see `vite.config.js`), a production build with a size budget (main bundle under 85,000 bytes gzipped), Playwright end-to-end smoke tests against that build, and an audit of production dependencies (`npm audit --omit=dev --audit-level=high`) via [GitHub Actions](.github/workflows/ci.yml). Advisories in dev tooling (Vite, Vitest, ESLint and their dependencies) don't ship to users, so they don't block PRs; a [weekly workflow](.github/workflows/audit-dev.yml) audits the full dependency tree instead and surfaces them. [Dependabot](.github/dependabot.yml) opens weekly PRs for outdated dependencies, grouped (production, development, GitHub Actions) so a week's updates arrive as a few PRs instead of many.
 
 **After merging a Dependabot PR that needed conflict resolution** (e.g. two version bumps landing close together), diff the merged file against what the PR claimed to change before trusting it — a conflict can be resolved in the wrong direction and silently keep the old version even though GitHub shows the PR as merged. This happened once with an `actions/checkout` bump; see the commit history around September 2026 for the fix.
 
@@ -72,7 +72,7 @@ Every push and pull request to `main` runs lint, tests with coverage (enforced b
 - Unit tests for every hook and API call, including the search/detail request-cancellation logic
 - Component tests for all UI components (rendering, interaction, keyboard behavior)
 - An integration test (Vitest + Testing Library) that exercises the full app with mocked API calls: search → open a recipe → save a favorite → close
-- End-to-end smoke tests (Playwright, `e2e/`) that run against a real production build and preview server, catching issues the mocked tests structurally can't (routing, asset paths, the code-split chunk actually loading)
+- End-to-end smoke tests (Playwright, `e2e/`) that run in desktop Chromium, a mobile viewport (Pixel 7) and desktop WebKit against a real production build and preview server, catching issues the mocked tests structurally can't (routing, asset paths, the code-split chunk actually loading)
 - Accessibility checks (via [vitest-axe](https://github.com/chance/vitest-axe), with the `color-contrast` rule disabled since jsdom can't render real styles) on the key interactive components
 - A React error boundary is tested directly, and one wraps the app so a rendering crash degrades gracefully instead of a blank page
 

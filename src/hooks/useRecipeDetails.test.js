@@ -65,4 +65,18 @@ describe("useRecipeDetails", () => {
     expect(result.current.detail).toEqual({ id: 2, title: "Recipe B" });
     expect(result.current.selectedId).toBe(2);
   });
+
+  it("shows the error message when the request fails", async () => {
+    fetchRecipeDetails.mockRejectedValue(
+      new Error("Could not load this recipe (status 404).")
+    );
+    const { result } = renderHook(() => useRecipeDetails("key"));
+
+    await act(async () => {
+      await result.current.open(1);
+    });
+
+    expect(result.current.error).toBe("Could not load this recipe (status 404).");
+    expect(result.current.loading).toBe(false);
+  });
 });

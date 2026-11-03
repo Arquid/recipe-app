@@ -19,7 +19,12 @@ jobs:
       - run: npm run lint
       - run: npm run coverage
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - name: Bundle size budget
+        run: |
+          size=$(gzip -c dist/assets/index-*.js | wc -c)
+          echo "main bundle (gzip): $size bytes"
+          test "$size" -lt 85000
+      - run: npx playwright install --with-deps chromium webkit
       - run: npm run e2e
         env:
           CI: true
