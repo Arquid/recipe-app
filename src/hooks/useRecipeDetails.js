@@ -16,6 +16,13 @@ export function useRecipeDetails(apiKey) {
     setSelectedId(id);
     setDetail(null);
     setError(null);
+
+    if (!apiKey.trim()) {
+      setLoading(false);
+      setError("Add your Spoonacular API key to open this recipe.");
+      return;
+    }
+
     setLoading(true);
     try {
       const data = await fetchRecipeDetails({ apiKey, id, signal: controller.signal });

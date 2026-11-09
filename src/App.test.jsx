@@ -79,4 +79,31 @@ describe("App (integration)", () => {
     expect(screen.getByText("Mock Tacos")).toBeTruthy();
     expect(screen.getByRole("button", { name: /remove from favorites/i })).toBeTruthy();
   });
+
+  it("keeps the api key field available in the favorites view but hides the search form", () => {
+    localStorage.setItem(
+      "rs-favorites",
+      JSON.stringify([{ id: 1, title: "Saved Soup", image: "", cuisines: [] }])
+    );
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: /my favorites/i }));
+
+    expect(screen.getByLabelText(/spoonacular api key/i)).toBeTruthy();
+    expect(screen.queryByLabelText(/dish name/i)).toBeNull();
+  });
+
+  it("explains the missing api key when a favorite is opened without one", async () => {
+    localStorage.setItem(
+      "rs-favorites",
+      JSON.stringify([{ id: 1, title: "Saved Soup", image: "", cuisines: [] }])
+    );
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: /my favorites/i }));
+    fireEvent.click(document.querySelector(".rs-card"));
+
+    expect(await screen.findByText(/add your spoonacular api key to open this recipe/i)).toBeTruthy();
+    expect(fetchRecipeDetails).not.toHaveBeenCalled();
+  });
 });

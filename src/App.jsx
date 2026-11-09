@@ -58,14 +58,14 @@ export default function App() {
         </button>
       </header>
 
-      {!showFavorites && (
-        <section className="rs-panel">
-          <ApiKeyInput
-            value={apiKey}
-            onChange={setApiKey}
-            remember={remember}
-            onRememberChange={setRemember}
-          />
+      <section className="rs-panel">
+        <ApiKeyInput
+          value={apiKey}
+          onChange={setApiKey}
+          remember={remember}
+          onRememberChange={setRemember}
+        />
+        {!showFavorites && (
           <SearchForm
             dishQuery={dishQuery}
             onDishQueryChange={setDishQuery}
@@ -79,8 +79,8 @@ export default function App() {
             onSortChange={setSort}
             onSubmit={handleSubmit}
           />
-        </section>
-      )}
+        )}
+      </section>
 
       {!showFavorites && (
         <>

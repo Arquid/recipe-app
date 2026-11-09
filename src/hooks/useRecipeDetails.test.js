@@ -79,4 +79,28 @@ describe("useRecipeDetails", () => {
     expect(result.current.error).toBe("Could not load this recipe (status 404).");
     expect(result.current.loading).toBe(false);
   });
+
+  it("explains that an api key is needed instead of calling the API", async () => {
+    const { result } = renderHook(() => useRecipeDetails(""));
+
+    await act(async () => {
+      await result.current.open(1);
+    });
+
+    expect(fetchRecipeDetails).not.toHaveBeenCalled();
+    expect(result.current.error).toBe("Add your Spoonacular API key to open this recipe.");
+    expect(result.current.loading).toBe(false);
+    expect(result.current.selectedId).toBe(1);
+  });
+
+  it("treats a whitespace-only api key as missing", async () => {
+    const { result } = renderHook(() => useRecipeDetails("   "));
+
+    await act(async () => {
+      await result.current.open(1);
+    });
+
+    expect(fetchRecipeDetails).not.toHaveBeenCalled();
+    expect(result.current.error).toBe("Add your Spoonacular API key to open this recipe.");
+  });
 });

@@ -109,6 +109,11 @@
   color: var(--ink);
 }
 .rs-key-row a { color: var(--paprika); text-decoration: underline; }
+.rs-key-row:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
 .rs-remember {
   display: inline-flex;
   align-items: center;
