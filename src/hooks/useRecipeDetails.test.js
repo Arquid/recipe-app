@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useRecipeDetails } from "./useRecipeDetails";
 import { fetchRecipeDetails } from "../api/spoonacular";
+import { getCachedDetail, setCachedDetail } from "../utils/detailCache";
 
 vi.mock("../api/spoonacular", () => ({
   fetchRecipeDetails: vi.fn(),
@@ -10,6 +11,7 @@ vi.mock("../api/spoonacular", () => ({
 describe("useRecipeDetails", () => {
   beforeEach(() => {
     fetchRecipeDetails.mockReset();
+    localStorage.clear();
   });
 
   it("aborts the previous request's signal when a new recipe is opened", () => {
@@ -102,5 +104,70 @@ describe("useRecipeDetails", () => {
 
     expect(fetchRecipeDetails).not.toHaveBeenCalled();
     expect(result.current.error).toBe("Add your Spoonacular API key to open this recipe.");
+  });
+
+  it("opens a cached recipe without calling the API or needing a key", async () => {
+    setCachedDetail(1, { id: 1, title: "Cached" });
+    const { result } = renderHook(() => useRecipeDetails(""));
+
+    await act(async () => {
+      await result.current.open(1);
+    });
+
+    expect(fetchRecipeDetails).not.toHaveBeenCalled();
+    expect(result.current.detail).toEqual({ id: 1, title: "Cached" });
+    expect(result.current.error).toBe(null);
+    expect(result.current.loading).toBe(false);
+    expect(result.current.selectedId).toBe(1);
+  });
+
+  it("stores a fetched recipe so reopening it needs no second request", async () => {
+    fetchRecipeDetails.mockResolvedValue({ id: 5, title: "Fresh" });
+    const { result } = renderHook(() => useRecipeDetails("key"));
+
+    await act(async () => {
+      await result.current.open(5);
+    });
+    expect(getCachedDetail(5)).toEqual({ id: 5, title: "Fresh" });
+
+    act(() => {
+      result.current.close();
+    });
+    await act(async () => {
+      await result.current.open(5);
+    });
+
+    expect(fetchRecipeDetails).toHaveBeenCalledTimes(1);
+    expect(result.current.detail).toEqual({ id: 5, title: "Fresh" });
+  });
+
+  it("does not cache a failed request", async () => {
+    fetchRecipeDetails.mockRejectedValue(new Error("boom"));
+    const { result } = renderHook(() => useRecipeDetails("key"));
+
+    await act(async () => {
+      await result.current.open(5);
+    });
+
+    expect(result.current.error).toBe("boom");
+    expect(getCachedDetail(5)).toBeNull();
+  });
+
+  it("stops the loading state when a cached recipe is opened while another request is pending", async () => {
+    setCachedDetail(2, { id: 2, title: "Cached B" });
+    fetchRecipeDetails.mockImplementationOnce(() => new Promise(() => {}));
+    const { result } = renderHook(() => useRecipeDetails("key"));
+
+    act(() => {
+      result.current.open(1);
+    });
+    expect(result.current.loading).toBe(true);
+
+    await act(async () => {
+      await result.current.open(2);
+    });
+
+    expect(result.current.loading).toBe(false);
+    expect(result.current.detail).toEqual({ id: 2, title: "Cached B" });
   });
 });

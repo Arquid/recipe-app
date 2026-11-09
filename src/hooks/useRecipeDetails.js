@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { fetchRecipeDetails } from "../api/spoonacular";
+import { getCachedDetail, setCachedDetail } from "../utils/detailCache";
 
 export function useRecipeDetails(apiKey) {
   const [selectedId, setSelectedId] = useState(null);
@@ -14,8 +15,16 @@ export function useRecipeDetails(apiKey) {
     abortRef.current = controller;
 
     setSelectedId(id);
-    setDetail(null);
     setError(null);
+
+    const cached = getCachedDetail(id);
+    if (cached) {
+      setDetail(cached);
+      setLoading(false);
+      return;
+    }
+
+    setDetail(null);
 
     if (!apiKey.trim()) {
       setLoading(false);
@@ -26,6 +35,7 @@ export function useRecipeDetails(apiKey) {
     setLoading(true);
     try {
       const data = await fetchRecipeDetails({ apiKey, id, signal: controller.signal });
+      setCachedDetail(id, data);
       setDetail(data);
     } catch (err) {
       if (err.name === "AbortError") return;

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import App from "./App";
 import { searchRecipes, fetchRecipeDetails } from "./api/spoonacular";
+import { setCachedDetail } from "./utils/detailCache";
 
 vi.mock("./api/spoonacular", async () => {
   const actual = await vi.importActual("./api/spoonacular");
@@ -105,5 +106,58 @@ describe("App (integration)", () => {
 
     expect(await screen.findByText(/add your spoonacular api key to open this recipe/i)).toBeTruthy();
     expect(fetchRecipeDetails).not.toHaveBeenCalled();
+  });
+
+  it("opens a recipe from the cache the second time without another request", async () => {
+    searchRecipes.mockResolvedValue({
+      results: [{ id: 1, title: "Mock Lasagna", image: "img.jpg", cuisines: ["Italian"] }],
+      totalResults: 1,
+    });
+    fetchRecipeDetails.mockResolvedValue({
+      id: 1,
+      title: "Mock Lasagna",
+      extendedIngredients: [{ id: 1, original: "Pasta sheets" }],
+      analyzedInstructions: [],
+    });
+
+    render(<App />);
+
+    fireEvent.change(screen.getByLabelText(/spoonacular api key/i), { target: { value: "test-key" } });
+    fireEvent.change(screen.getByLabelText(/dish name/i), { target: { value: "lasagna" } });
+    fireEvent.click(screen.getByRole("button", { name: /search/i }));
+    await screen.findByText("Mock Lasagna");
+
+    fireEvent.click(document.querySelector(".rs-card"));
+    expect(await screen.findByText("Pasta sheets")).toBeTruthy();
+
+    fireEvent.keyDown(document, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByText("Pasta sheets")).toBeNull());
+
+    fireEvent.click(document.querySelector(".rs-card"));
+    expect(await screen.findByText("Pasta sheets")).toBeTruthy();
+
+    expect(fetchRecipeDetails).toHaveBeenCalledTimes(1);
+  });
+
+  it("opens an already cached favorite even though no api key is set", async () => {
+    localStorage.setItem(
+      "rs-favorites",
+      JSON.stringify([{ id: 1, title: "Saved Soup", image: "", cuisines: [] }])
+    );
+    setCachedDetail(1, {
+      id: 1,
+      title: "Saved Soup",
+      extendedIngredients: [{ id: 1, original: "Broth" }],
+      analyzedInstructions: [],
+    });
+
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: /my favorites/i }));
+    fireEvent.click(document.querySelector(".rs-card"));
+
+    expect(await screen.findByText("Broth")).toBeTruthy();
+    expect(fetchRecipeDetails).not.toHaveBeenCalled();
+    expect(screen.queryByText(/add your spoonacular api key to open this recipe/i)).toBeNull();
   });
 });
